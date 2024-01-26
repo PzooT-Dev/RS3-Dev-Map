@@ -51,7 +51,7 @@ export default void function (factory) {
                 let newLng = Math.trunc(latlng.lng);
                 let newLatLng = L.latLng(newLat, newLng);
                 this.setLatLng(newLatLng);
-                return this
+                return this;
             },
 
 	     L.Map.addInitHook(function () {
