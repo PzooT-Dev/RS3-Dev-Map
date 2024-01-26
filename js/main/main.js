@@ -39,7 +39,7 @@ void (function (global) {
         minZoom: -4,
         maxZoom: 4,
         doubleClickZoom: false,
-        baseMaps: "data_rs3/basemaps.json",
+        baseMaps: "https://raw.githubusercontent.com/mejrs/data_rs3/basemaps.json",
         loadMapData: true,
         showMapBorder: true,
         enableUrlLocation: true,
@@ -54,14 +54,14 @@ void (function (global) {
 
     L.control.display
         .npcs({
-            folder: "data_rs3",
+            folder: "https://raw.githubusercontent.com/mejrs/data_rs3/",
         })
         .addTo(runescape_map);
 
     L.control.display.pathfinder().addTo(runescape_map);
 
     L.tileLayer
-        .main("layers_rs3/mapsquares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+        .main("https://raw.githubusercontent.com/mejrslayers_rs3/mapsquares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
             minZoom: -4,
             maxNativeZoom: 3,
             maxZoom: 5,
@@ -69,23 +69,23 @@ void (function (global) {
         .addTo(runescape_map)
         .bringToBack();
 
-    var icon_squares = L.tileLayer.main("layers_rs3/icon_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+    var icon_squares = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/icon_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
         minZoom: -4,
         maxNativeZoom: 3,
         maxZoom: 5,
     });
 
-    var areas = L.tileLayer.main("layers_rs3/areas_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+    var areas = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/areas_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
         minZoom: -4,
         maxNativeZoom: 2,
         maxZoom: 5,
     });
 
-    var shadow = L.tileLayer.main("layers_rs3/shadow_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+    var shadow = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/shadow_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
         minZoom: -4,
         maxNativeZoom: 2,
         maxZoom: 5,
-        errorTileUrl: "layers/shadow_squares/shadow_tile.png",
+        errorTileUrl: "https://raw.githubusercontent.com/mejrs/layers/shadow_squares/shadow_tile.png",
     });
 
     var grid = L.grid({
@@ -95,13 +95,13 @@ void (function (global) {
         ],
     });
 
-    var zones = L.tileLayer.main("layers_rs3/zonemap_squares/{mapId}/{zoom}_0_{x}_{y}.png", {
+    var zones = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/zonemap_squares/{mapId}/{zoom}_0_{x}_{y}.png", {
         minZoom: -4,
         maxNativeZoom: 2,
         maxZoom: 4,
     });
 
-    var watery = L.tileLayer.main("layers_rs3/watery_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+    var watery = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/watery_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
         minZoom: -4,
         maxNativeZoom: 2,
         maxZoom: 5,
