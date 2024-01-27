@@ -192,8 +192,8 @@ import "../leaflet.js";
             this.globalX = parseInt(position.lng);
             this.globalY = parseInt(position.lat);
             let jCoord = this.createString(this.convert(this._map._plane, this.globalX, this.globalY));
-            let pxyCoord = this.createString(this.globalX, this.globalY, this._map._plane);
-            this._container.innerHTML = "<br>" + pxyCoord;
+            let pxyCoord = `new Coordinate( ${this.globalX}, ${this.globalY}, ${this._map._plane});`;
+	    this._container.innerHTML = pxyCoord;
             this._rect.setBounds([[this.globalY, this.globalX], [this.globalY + 1, this.globalX + 1]])
 
         }
