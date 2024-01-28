@@ -111,7 +111,109 @@ export default void function (factory) {
             this.rect.startRectangleCreation(initialLatLng);
         },
 
-        // ... other methods remain unchanged
+        createInterface: function () {
+            let container = L.DomUtil.create('div', 'leaflet-control-display-expanded');
+            let rectForm = L.DomUtil.create('form', 'leaflet-control-display-form', container);
+
+            let widthLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            widthLabel.innerHTML = "Width";
+            this.width = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.width.setAttribute('type', 'number');
+            this.width.setAttribute('name', 'width');
+
+            let heightLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            heightLabel.innerHTML = "Height";
+            this.height = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.height.setAttribute('type', 'number');
+            this.height.setAttribute('name', 'height');
+
+            let areaLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            areaLabel.innerHTML = "Area";
+            this.area = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.area.setAttribute('type', 'number');
+            this.area.setAttribute('name', 'area');
+            this.area.setAttribute('readonly', true);
+
+            let westLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            westLabel.innerHTML = "West";
+            this.west = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.west.setAttribute('type', 'number');
+            this.west.setAttribute('name', 'west');
+
+            let eastLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            eastLabel.innerHTML = "East";
+            this.east = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.east.setAttribute('type', 'number');
+            this.east.setAttribute('name', 'east');
+
+            let northLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            northLabel.innerHTML = "North";
+            this.north = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.north.setAttribute('type', 'number');
+            this.north.setAttribute('name', 'north');
+
+            let southLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            southLabel.innerHTML = "South";
+            this.south = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.south.setAttribute('type', 'number');
+            this.south.setAttribute('name', 'south');
+
+            let centerLabel = L.DomUtil.create('label', 'leaflet-control-display-label', rectForm);
+            centerLabel.innerHTML = "Center";
+            this.center = L.DomUtil.create('input', 'leaflet-control-display-input-number', rectForm);
+            this.center.setAttribute('type', 'text');
+            this.center.setAttribute('name', 'center');
+            this.center.setAttribute('readOnly', true);
+
+            rectForm.addEventListener("change", this.changeRect.bind(this));
+
+            return container;
+        },
+
+        changeRect: function (e) {
+            let [width, height, _, west, east, north, south] = Array.from(e.srcElement.parentElement.children).filter(elem => elem.nodeName == "INPUT").map(elem => elem.value);
+            if (["width", "height"].includes(e.srcElement.name)) {
+                east = Number(west) + Number(width);
+                north = Number(south) + Number(height);
+            }
+            let bounds = L.latLngBounds([[south, west], [north, east]]);
+            this.rect.setBounds(bounds);
+            this.update(bounds);
+        },
+
+        update: function (bounds) {
+            // update control content
+            let west = bounds.getWest();
+            let east = bounds.getEast();
+            let north = bounds.getNorth();
+            let south = bounds.getSouth();
+            let width = east - west;
+            let height = north - south;
+            let center_width = (west + east) / 2;
+            let center_height = (north + south) / 2;
+
+            this.width.value = width;
+            this.height.value = height;
+            this.area.value = height * width;
+            this.west.value = west;
+            this.east.value = east;
+            this.north.value = north;
+            this.south.value = south;
+            this.center.value = `${center_width}, ${center_height}`;
+        },
+
+        expand: function () {
+            let bounds = this._map.getBounds().pad(-0.3);
+            this.rect.setBounds(bounds);
+            this.rect.addTo(this._map);
+            return L.Control.Display.prototype.expand.call(this);
+        },
+
+        collapse: function () {
+            this.rect.remove();
+            return L.Control.Display.prototype.collapse.call(this);
+        },
+
     });
 
     L.control.display.rect = function (options) {
