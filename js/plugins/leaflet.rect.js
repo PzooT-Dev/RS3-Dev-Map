@@ -48,7 +48,8 @@ export default void function (factory) {
         },
 
         onAdd: function (map) {
-            this.vertices.forEach(v => v.addTo(map));
+            // Commented out the following line to prevent creating the initial rectangle.
+            // this.vertices.forEach(v => v.addTo(map));
 
             L.Rectangle.prototype.onAdd.call(this, map);
             this.options.owner.update(this.getBounds());
@@ -101,20 +102,24 @@ export default void function (factory) {
 
     L.Control.Display.Rect = L.Control.Display.extend({
         onAdd: function (map) {
-            this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], {
-                owner: this
-            });
+            // Commented out the following line to prevent creating the initial rectangle.
+            // this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], { owner: this });
             return L.Control.Display.prototype.onAdd.call(this, map);
         },
 
         options: {
-                position: 'bottomleft',
-                title: 'Dimensions:',
-				icon: 'images/Blue_square_(Prisoner_of_Glouphrie).png'
+            position: 'bottomleft',
+            title: 'Dimensions:',
+            icon: 'images/Blue_square_(Prisoner_of_Glouphrie).png'
         },
 
         startRectangleCreation: function (initialLatLng) {
+            if (this.rect) {
+                this.rect.remove();
+            }
+            this.rect = L.draggableSquare([[initialLatLng.lat, initialLatLng.lng], [initialLatLng.lat, initialLatLng.lng]], { owner: this });
             this.rect.startRectangleCreation(initialLatLng);
+            this.rect.addTo(this._map);
         },
 
         createInterface: function () {
@@ -209,9 +214,10 @@ export default void function (factory) {
         },
 
         expand: function () {
-            let bounds = this._map.getBounds().pad(-0.3);
-            this.rect.setBounds(bounds);
-            this.rect.addTo(this._map);
+            // Commented out the following lines to prevent creating the initial rectangle.
+            // let bounds = this._map.getBounds().pad(-0.3);
+            // this.rect.setBounds(bounds);
+            // this.rect.addTo(this._map);
             return L.Control.Display.prototype.expand.call(this);
         },
 
@@ -219,7 +225,6 @@ export default void function (factory) {
             this.rect.remove();
             return L.Control.Display.prototype.collapse.call(this);
         },
-
     });
 
     L.control.display.rect = function (options) {
