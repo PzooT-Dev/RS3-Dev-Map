@@ -40,6 +40,7 @@ export default void function (factory) {
 
     L.DraggableSquare = L.Rectangle.extend({
         creatingRectangle: false,
+        _tempRectangle: null,
 
         initialize: function (latLngBounds, options) {
             let bounds = L.latLngBounds(latLngBounds);
@@ -69,7 +70,6 @@ export default void function (factory) {
         onMouseMove: function (e) {
             if (this.creatingRectangle) {
                 let newBounds = L.latLngBounds([this._initialLatLng, e.latlng]);
-                this.setBounds(newBounds);
 
                 // Visualize the bounds by drawing a temporary rectangle
                 if (!this._tempRectangle) {
@@ -115,7 +115,7 @@ export default void function (factory) {
 
     L.Control.Display.Rect = L.Control.Display.extend({
         onAdd: function (map) {
-            this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], {
+            this.rect = L.draggableSquare([[0, 0], [0, 0]], {
                 owner: this
             });
             return L.Control.Display.prototype.onAdd.call(this, map);
@@ -225,7 +225,6 @@ export default void function (factory) {
         expand: function () {
             let bounds = this._map.getBounds().pad(-0.3);
             this.rect.setBounds(bounds);
-            this.rect.addTo(this._map);
             return L.Control.Display.prototype.expand.call(this);
         },
 
@@ -233,6 +232,7 @@ export default void function (factory) {
             this.rect.remove();
             return L.Control.Display.prototype.collapse.call(this);
         },
+
     });
 
     L.control.display.rect = function (options) {
