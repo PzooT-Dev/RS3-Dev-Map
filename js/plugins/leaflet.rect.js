@@ -33,16 +33,9 @@ export default void function (factory) {
         },
 
         onMouseDown: function (e) {
-            if (!this.creatingRectangle) {
-                this.startRectangleCreation(this._latlng);
-                this.creatingRectangle = true;
-            } else {
-                this.creatingRectangle = false;
-                this.options.owner.update(this.getBounds());
-                console.log('onMouseUp: ', this.getBounds().toBBoxString());
-            }
+            this.options.owner.startRectangleCreation(this._latlng);
             e.originalEvent.preventDefault();
-            },
+        },
     });
 
     L.DraggableSquare = L.Rectangle.extend({
@@ -55,8 +48,7 @@ export default void function (factory) {
         },
 
         onAdd: function (map) {
-            // Commented out the following line to prevent creating the initial rectangle.
-            // this.vertices.forEach(v => v.addTo(map));
+            this.vertices.forEach(v => v.addTo(map));
 
             L.Rectangle.prototype.onAdd.call(this, map);
             this.options.owner.update(this.getBounds());
@@ -70,18 +62,22 @@ export default void function (factory) {
         },
 
         startRectangleCreation: function (initialLatLng) {
-            if (this.rect) {
-                this.rect.remove();
-            }
-            this.rect = L.draggableSquare([[initialLatLng.lat, initialLatLng.lng], [initialLatLng.lat, initialLatLng.lng]], { owner: this });
-            this.rect.startRectangleCreation(initialLatLng);
-            this.rect.addTo(this._map);
+            this.creatingRectangle = true;
+            this._initialLatLng = initialLatLng;
         },
 
         onMouseMove: function (e) {
             if (this.creatingRectangle) {
                 let newBounds = L.latLngBounds([this._initialLatLng, e.latlng]);
                 this.setBounds(newBounds);
+
+                // Visualize the bounds by drawing a temporary rectangle
+                if (!this._tempRectangle) {
+                    this._tempRectangle = L.rectangle(newBounds, { color: '#3388ff', weight: 2, fillOpacity: 0.2 }).addTo(this._map);
+                } else {
+                    this._tempRectangle.setBounds(newBounds);
+                }
+
                 console.log('onMouseMove: ', newBounds.toBBoxString());
             }
         },
@@ -91,6 +87,12 @@ export default void function (factory) {
                 this.creatingRectangle = false;
                 this.options.owner.update(this.getBounds());
                 console.log('onMouseUp: ', this.getBounds().toBBoxString());
+
+                // Remove the temporary rectangle after finishing rectangle creation
+                if (this._tempRectangle) {
+                    this._tempRectangle.remove();
+                    this._tempRectangle = null;
+                }
             }
         },
 
@@ -113,8 +115,9 @@ export default void function (factory) {
 
     L.Control.Display.Rect = L.Control.Display.extend({
         onAdd: function (map) {
-            // Commented out the following line to prevent creating the initial rectangle.
-            // this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], { owner: this });
+            this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], {
+                owner: this
+            });
             return L.Control.Display.prototype.onAdd.call(this, map);
         },
 
@@ -125,12 +128,7 @@ export default void function (factory) {
         },
 
         startRectangleCreation: function (initialLatLng) {
-            if (this.rect) {
-                this.rect.remove();
-            }
-            this.rect = L.draggableSquare([[initialLatLng.lat, initialLatLng.lng], [initialLatLng.lat, initialLatLng.lng]], { owner: this });
             this.rect.startRectangleCreation(initialLatLng);
-            this.rect.addTo(this._map);
         },
 
         createInterface: function () {
@@ -225,10 +223,9 @@ export default void function (factory) {
         },
 
         expand: function () {
-            // Commented out the following lines to prevent creating the initial rectangle.
-            // let bounds = this._map.getBounds().pad(-0.3);
-            // this.rect.setBounds(bounds);
-            // this.rect.addTo(this._map);
+            let bounds = this._map.getBounds().pad(-0.3);
+            this.rect.setBounds(bounds);
+            this.rect.addTo(this._map);
             return L.Control.Display.prototype.expand.call(this);
         },
 
