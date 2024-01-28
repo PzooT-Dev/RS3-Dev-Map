@@ -107,6 +107,12 @@ export default void function (factory) {
             return L.Control.Display.prototype.onAdd.call(this, map);
         },
 
+        options: {
+                position: 'bottomleft',
+                title: 'Dimensions:',
+				icon: 'images/Blue_square_(Prisoner_of_Glouphrie).png'
+        },
+
         startRectangleCreation: function (initialLatLng) {
             this.rect.startRectangleCreation(initialLatLng);
         },
