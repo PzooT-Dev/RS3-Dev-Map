@@ -33,9 +33,16 @@ export default void function (factory) {
         },
 
         onMouseDown: function (e) {
-            this.options.owner.startRectangleCreation(this._latlng);
+            if (!this.creatingRectangle) {
+                this.startRectangleCreation(this._latlng);
+                this.creatingRectangle = true;
+            } else {
+                this.creatingRectangle = false;
+                this.options.owner.update(this.getBounds());
+                console.log('onMouseUp: ', this.getBounds().toBBoxString());
+            }
             e.originalEvent.preventDefault();
-        },
+            },
     });
 
     L.DraggableSquare = L.Rectangle.extend({
