@@ -67,6 +67,11 @@ export default void function (factory) {
             this._initialLatLng = initialLatLng;
         },
 
+        onMouseDown: function (e) {
+            this.startRectangleCreation(e.latlng);
+            e.originalEvent.preventDefault();
+        },
+
         onMouseMove: function (e) {
             if (this.creatingRectangle) {
                 let newBounds = L.latLngBounds([this._initialLatLng, e.latlng]);
@@ -82,7 +87,7 @@ export default void function (factory) {
             }
         },
 
-        onMouseUp: function () {
+        onMouseUp: function (e) {
             if (this.creatingRectangle) {
                 this.creatingRectangle = false;
                 this.options.owner.update(this.getBounds());
@@ -115,7 +120,7 @@ export default void function (factory) {
 
     L.Control.Display.Rect = L.Control.Display.extend({
         onAdd: function (map) {
-            this.rect = L.draggableSquare([[0, 0], [0, 0]], {
+            this.rect = L.draggableSquare([[3232, 3200], [3200, 3232]], {
                 owner: this
             });
             return L.Control.Display.prototype.onAdd.call(this, map);
@@ -225,6 +230,7 @@ export default void function (factory) {
         expand: function () {
             let bounds = this._map.getBounds().pad(-0.3);
             this.rect.setBounds(bounds);
+            this.rect.addTo(this._map);
             return L.Control.Display.prototype.expand.call(this);
         },
 
@@ -232,7 +238,6 @@ export default void function (factory) {
             this.rect.remove();
             return L.Control.Display.prototype.collapse.call(this);
         },
-
     });
 
     L.control.display.rect = function (options) {
