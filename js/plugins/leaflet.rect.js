@@ -63,8 +63,12 @@ export default void function (factory) {
         },
 
         startRectangleCreation: function (initialLatLng) {
-            this.creatingRectangle = true;
-            this._initialLatLng = initialLatLng;
+            if (this.rect) {
+                this.rect.remove();
+            }
+            this.rect = L.draggableSquare([[initialLatLng.lat, initialLatLng.lng], [initialLatLng.lat, initialLatLng.lng]], { owner: this });
+            this.rect.startRectangleCreation(initialLatLng);
+            this.rect.addTo(this._map);
         },
 
         onMouseMove: function (e) {
