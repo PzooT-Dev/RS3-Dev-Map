@@ -1,7 +1,7 @@
 'use strict';
 
-import {Area} from './custom/model/Area.js';
-import {Position} from './custom/model/Position.js';
+import {Area} from './Area.js';
+import {Position} from './Position.js';
 
 export class Areas {
 
