@@ -9,8 +9,6 @@ import "../../js/plugins/leaflet.plane.js";
 import "../../js/plugins/leaflet.position.js";
 import "../../js/plugins/leaflet.displays.js";
 import "../../js/plugins/leaflet.urllayers.js";
-import "../../js/plugins/leaflet.rect.js";
-import "../../js/plugins/leaflet.clickcopy.js";
 import "../../js/plugins/leaflet.maplabels.js";
 
 import { Position } from './custom/model/Position.js';
@@ -77,21 +75,9 @@ $(document).ready(function () {
     map.addControl(new GridControl());
     map.addControl(new RegionLabelsControl());
 
-    var prevMouseRect, prevMousePos;
-    map.on('mousemove', function (e) {
-        var mousePos = Position.fromLatLng(map, e.latlng, map.plane);
-
-        if (prevMousePos !== mousePos) {
-            prevMousePos = mousePos;
-
-            if (prevMouseRect !== undefined) {
-                map.removeLayer(prevMouseRect);
-            }
-
-            prevMouseRect = mousePos.toLeaflet(map);
-            prevMouseRect.addTo(map);
-        }
-    });
+    // Remove the rectangle drawing functionality
+    // Remove the rect control instantiation and its addition to the map
+    // Remove the mousemove event listener that draws the rectangle
 
     const setUrlParams = () => {
         const mapCentre = map.getBounds().getCenter()
