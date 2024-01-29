@@ -16,9 +16,17 @@
 	<link rel="stylesheet" href="css/plugins/leaflet.mapTemplate.css"/>
 	<link rel="stylesheet" href="css/plugins/leaflet.customZoom.css"/>
 	<link rel="stylesheet" href="css/plugins/leaflet.displays.css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+    	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.min.css"
+        integrity="sha256-/PVkO2+mUlKqE6wgKVXU5Wh4mx3vncHAxLEdpXrziGo=" crossorigin="anonymous" />
 
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/7.33.1/sweetalert2.js"
+        integrity="sha256-u74zWXS2T+G4E4NsM/R8gR8SaTJcq5a0TCks5m+AN9k=" crossorigin="anonymous"></script>
 	<script type="module" src="js/MD5.js"></script>
     	<script type="module" src="js/leaflet.js"></script>
 	<script type="module" src="js/plugins/leaflet.fullscreen.js"></script>
@@ -35,6 +43,28 @@
 	
 	</head>
   	<body>
-     <div id="map"></div>    
+      <div class="container-fluid" id="container">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="map-container">
+            <div id="map"></div>
+        </div>
+        <div class="slide-panel" id="code-output-panel">
+            <pre id="code-output-pre"><code id="code-output" contenteditable="true"></code></pre>
+        </div>
+        <div class="slide-panel" id="settings-panel">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="control-label col-lg-6" for="output-type">Output type</label>
+                    <div class="col-lg-5">
+                        <select class="form-control" id="output-type">
+                            <option>Array</option>
+                            <option>List</option>
+                            <option>Arrays.asList</option>
+                            <option>Raw</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>   
   </body>
 </html>
