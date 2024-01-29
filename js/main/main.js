@@ -9,6 +9,8 @@ import "../../js/plugins/leaflet.plane.js";
 import "../../js/plugins/leaflet.position.js";
 import "../../js/plugins/leaflet.displays.js";
 import "../../js/plugins/leaflet.urllayers.js";
+import "../../js/plugins/leaflet.rect.js";
+import "../../js/plugins/leaflet.clickcopy.js";
 import "../../js/plugins/leaflet.maplabels.js";
 
 import { Position } from './custom/model/Position.js';
@@ -35,10 +37,19 @@ $(document).ready(function () {
     const urlZoom = currentUrl.searchParams.get("zoom");
     const urlRegionID = currentUrl.searchParams.get("regionID");
 
+    console.log("Debugging Logs:");
+    console.log("urlCentreX:", urlCentreX);
+    console.log("urlCentreY:", urlCentreY);
+    console.log("urlCentreZ:", urlCentreZ);
+    console.log("urlZoom:", urlZoom);
+    console.log("urlRegionID:", urlRegionID);
+
     var map = L.map('map', {
         zoomControl: false,
         renderer: L.canvas()
     });
+
+    console.log("Initial map:", map);
 
     map.plane = 0;
 
@@ -58,10 +69,13 @@ $(document).ready(function () {
         map.invalidateSize();
     };
 
+    console.log("Updating map path...");
     map.updateMapPath();
     map.getContainer().focus();
 
     // Add the controllers
+    console.log("Adding controllers...");
+
     map.addControl(new TitleLabel());
     map.addControl(new CoordinatesControl());
     map.addControl(new RegionBaseCoordinatesControl());
@@ -75,9 +89,23 @@ $(document).ready(function () {
     map.addControl(new GridControl());
     map.addControl(new RegionLabelsControl());
 
-    // Remove the rectangle drawing functionality
-    // Remove the rect control instantiation and its addition to the map
-    // Remove the mousemove event listener that draws the rectangle
+    console.log("Controllers added:", map);
+
+    var prevMouseRect, prevMousePos;
+    map.on('mousemove', function (e) {
+        var mousePos = Position.fromLatLng(map, e.latlng, map.plane);
+
+        if (prevMousePos !== mousePos) {
+            prevMousePos = mousePos;
+
+            if (prevMouseRect !== undefined) {
+                map.removeLayer(prevMouseRect);
+            }
+
+            prevMouseRect = mousePos.toLeaflet(map);
+            prevMouseRect.addTo(map);
+        }
+    });
 
     const setUrlParams = () => {
         const mapCentre = map.getBounds().getCenter()
@@ -85,6 +113,7 @@ $(document).ready(function () {
 
         const zoom = map.getZoom();
 
+        console.log("Setting URL params...");
         window.history.replaceState(null, null, `?centreX=${centrePos.x}&centreY=${centrePos.y}&centreZ=${centrePos.z}&zoom=${zoom}`);
     };
 
@@ -111,5 +140,6 @@ $(document).ready(function () {
         zoom = urlZoom || 0;
     }
 
+    console.log("Setting initial view...");
     map.setView(centreLatLng, zoom);
 });
