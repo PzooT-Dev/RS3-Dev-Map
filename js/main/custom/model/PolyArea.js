@@ -1,6 +1,6 @@
 'use strict';
 
-import {Position, RS_TILE_WIDTH_PX, RS_TILE_HEIGHT_PX} from './custom/model/Position.js';
+import {Position, RS_TILE_WIDTH_PX, RS_TILE_HEIGHT_PX} from './Position.js';
 
 export class PolyArea {
 
