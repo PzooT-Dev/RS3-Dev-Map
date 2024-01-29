@@ -1,6 +1,6 @@
 'use strict';
 
-import {Position} from './custom/model/Position.js';
+import {Position} from './Position.js';
 
 export const MIN_X = 64, MAX_X = 6336;
 export const MIN_Y = 64, MAX_Y = 12736;
