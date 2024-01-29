@@ -1,6 +1,6 @@
 'use strict';
 
-import {Position} from './Position.js';
+import {Position} from './custom/model/Position.js';
 
 export class Area {
 
