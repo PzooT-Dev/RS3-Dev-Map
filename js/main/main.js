@@ -13,137 +13,117 @@ import "../../js/plugins/leaflet.rect.js";
 import "../../js/plugins/leaflet.clickcopy.js";
 import "../../js/plugins/leaflet.maplabels.js";
 
-import plot_map_labels from "../../js/plugins/leaflet.labels.js";
-window.plot_map_labels = plot_map_labels;
+import { Position } from './custom/model/Position.js';
 
-void (function (global) {
-    let runescape_map = (global.runescape_map = L.gameMap("map", {
-        maxBounds: [
-            [-1000, -1000],
-            [12800 + 1000, 12800 + 1000],
-        ],
-        maxBoundsViscosity: 0.5,
+// Import the controllers from the first code snippet
+import { CollectionControl } from './custom/controls/collection_control.js';
+import { CoordinatesControl } from './custom/controls/coordinates_control.js';
+import { LocalCoordinatesControl } from './custom/controls/local_coordinates_control.js';
+import { RegionBaseCoordinatesControl } from './custom/controls/region_base_coordinates_control.js';
+import { GridControl } from './custom/controls/grid_control.js';
+import { LocationLookupControl } from './custom/controls/location_lookup_control.js';
+import { MapLabelControl } from './custom/controls/map_label_control.js';
+import { PlaneControl } from './custom/controls/plane_control.js';
+import { RegionLabelsControl } from './custom/controls/region_labels_control.js';
+import { RegionLookupControl } from './custom/controls/region_lookup_control.js';
+import { TitleLabel } from './custom/controls/title_label.js';
+import { Region } from './custom/model/Region.js';
 
-        customZoomControl: true,
-        fullscreenControl: true,
-        planeControl: true,
-        positionControl: true,
-        messageBox: true,
-        rect: true,
-        initialMapId: -1,
-        plane: 0,
-        x: 3200,
-        y: 3200,
-        minPlane: 0,
-        maxPlane: 3,
-        minZoom: -4,
-        maxZoom: 4,
-        doubleClickZoom: false,
-        baseMaps: "https://raw.githubusercontent.com/mejrs/data_rs3/fe1f140523eefacb45be9752d0ef5703d959d051/basemaps.json",
-        loadMapData: true,
-        showMapBorder: true,
-        enableUrlLocation: true,
-    }));
+$(document).ready(function () {
+    const currentUrl = new URL(window.location.href);
+    const urlCentreX = currentUrl.searchParams.get("centreX");
+    const urlCentreY = currentUrl.searchParams.get("centreY");
+    const urlCentreZ = currentUrl.searchParams.get("centreZ");
+    const urlZoom = currentUrl.searchParams.get("zoom");
+    const urlRegionID = currentUrl.searchParams.get("regionID");
 
-    L.control.display
-        .objects({
-            folder: "https://raw.githubusercontent.com/mejrs/data_rs3/fe1f140523eefacb45be9752d0ef5703d959d051/",
-            displayLayer: L.objects,
-        })
-        .addTo(runescape_map);
+    var map = L.map('map', {
+        zoomControl: false,
+        renderer: L.canvas()
+    });
 
-    L.control.display
-        .npcs({
-            folder: "https://raw.githubusercontent.com/mejrs/data_rs3/fe1f140523eefacb45be9752d0ef5703d959d051/",
-        })
-        .addTo(runescape_map);
+    map.plane = 0;
 
-    L.control.display.pathfinder().addTo(runescape_map);
-
-    L.tileLayer
-        .main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/mapsquares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
+    map.updateMapPath = function () {
+        if (map.tile_layer !== undefined) {
+            map.removeLayer(map.tile_layer);
+        }
+        map.tile_layer = L.tileLayer('https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/mapsquares/-1/' + map.plane + '/{z}_{x}_{y}.png', {
             minZoom: -4,
             maxNativeZoom: 3,
             maxZoom: 5,
-        })
-        .addTo(runescape_map)
-        .bringToBack();
+            attribution: 'Map data',
+            noWrap: true,
+            tms: true
+        });
+        map.tile_layer.addTo(map);
+        map.invalidateSize();
+    };
 
-    var icon_squares = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/icon_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
-        minZoom: -4,
-        maxNativeZoom: 3,
-        maxZoom: 5,
-    });
+    map.updateMapPath();
+    map.getContainer().focus();
 
-    var areas = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/areas_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
-        minZoom: -4,
-        maxNativeZoom: 2,
-        maxZoom: 5,
-    });
+    // Add the controllers
+    map.addControl(new TitleLabel());
+    map.addControl(new CoordinatesControl());
+    map.addControl(new RegionBaseCoordinatesControl());
+    map.addControl(new LocalCoordinatesControl());
+    map.addControl(L.control.zoom());
+    map.addControl(new PlaneControl());
+    map.addControl(new LocationLookupControl());
+    map.addControl(new MapLabelControl());
+    map.addControl(new CollectionControl({ position: 'topright' }));
+    map.addControl(new RegionLookupControl());
+    map.addControl(new GridControl());
+    map.addControl(new RegionLabelsControl());
 
-    var shadow = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/shadow_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
-        minZoom: -4,
-        maxNativeZoom: 2,
-        maxZoom: 5,
-        errorTileUrl: "https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/shadow_squares/shadow_tile.png",
-    });
+    var prevMouseRect, prevMousePos;
+    map.on('mousemove', function (e) {
+        var mousePos = Position.fromLatLng(map, e.latlng, map.plane);
 
-    var grid = L.grid({
-        bounds: [
-            [0, 0],
-            [12800, 6400],
-        ],
-    });
+        if (prevMousePos !== mousePos) {
+            prevMousePos = mousePos;
 
-    var zones = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/zonemap_squares/{mapId}/{zoom}_0_{x}_{y}.png", {
-        minZoom: -4,
-        maxNativeZoom: 2,
-        maxZoom: 4,
-    });
-
-    var watery = L.tileLayer.main("https://raw.githubusercontent.com/mejrs/layers_rs3/cb4b7dd75787c52cd635178b15ee5e44f17e42f9/watery_squares/{mapId}/{zoom}/{plane}_{x}_{y}.png", {
-        minZoom: -4,
-        maxNativeZoom: 2,
-        maxZoom: 5,
-    });
-
-    var teleports = L.teleports({
-        API_KEY: "AIzaSyBrYT0-aS9VpW2Aenm-pJ2UCUhih8cZ4g8",
-        SHEET_ID: "1ZjKyAMUWa1qxFvBnmXwofNkRBkVfsizoGwp6rZylXXM",
-        minZoom: -3,
-        filterFn: (item) => item.type === "teleport",
-    });
-
-    var transports = L.teleports({
-        API_KEY: "AIzaSyBrYT0-aS9VpW2Aenm-pJ2UCUhih8cZ4g8",
-        SHEET_ID: "1ZjKyAMUWa1qxFvBnmXwofNkRBkVfsizoGwp6rZylXXM",
-        minZoom: -3,
-        filterFn: (item) => item.type !== "teleport",
-    });
-
-    let labels = L.maplabelGroup({
-        API_KEY: "AIzaSyBrYT0-aS9VpW2Aenm-pJ2UCUhih8cZ4g8",
-        SHEET_ID: "1apnt91ud4GkWsfuxJTXdhrGjyGFL0hNz6jYDED3abX0",
-    });
-
-    L.control.layers
-        .urlParam(
-            {},
-            {
-                Labels: labels,
-                Icons: icon_squares,
-                Areas: areas,
-                "Areas (inverted)": shadow,
-                Grid: grid,
-                "Map zones": zones,
-                Teleports: teleports,
-                Transports: transports,
-                "0x2": watery,
-            },
-            {
-                collapsed: true,
-                position: "bottomright",
+            if (prevMouseRect !== undefined) {
+                map.removeLayer(prevMouseRect);
             }
-        )
-        .addTo(runescape_map);
-})(this || window);
+
+            prevMouseRect = mousePos.toLeaflet(map);
+            prevMouseRect.addTo(map);
+        }
+    });
+
+    const setUrlParams = () => {
+        const mapCentre = map.getBounds().getCenter()
+        const centrePos = Position.fromLatLng(map, mapCentre, map.plane);
+
+        const zoom = map.getZoom();
+
+        window.history.replaceState(null, null, `?centreX=${centrePos.x}&centreY=${centrePos.y}&centreZ=${centrePos.z}&zoom=${zoom}`);
+    };
+
+    map.on('move', setUrlParams);
+    map.on('zoom', setUrlParams);
+
+    let zoom = 0;
+    const center = new Position(Number(3200), Number(3200), Number(0));
+    let centreLatLng = center.toLatLng(map);
+
+    if (urlZoom) {
+        zoom = urlZoom;
+    }
+
+    if (urlCentreX && urlCentreY && urlCentreZ) {
+        const x = Number(urlCentreX) > Region.MAX_X ? Region.MAX_X : Number(urlCentreX) < Region.MIN_X ? Region.MIN_X : Number(urlCentreX);
+        const y = Number(urlCentreY) > Region.MAX_Y ? Region.MAX_Y : Number(urlCentreY) < Region.MIN_Y ? Region.MIN_Y : Number(urlCentreY);
+        const centrePos = new Position(x, y, Number(urlCentreZ));
+        centreLatLng = centrePos.toLatLng(map);
+    } else if (urlRegionID) {
+        const region = new Region(Number(urlRegionID));
+        const centrePos = region.toCentrePosition()
+        centreLatLng = centrePos.toLatLng(map);
+        zoom = urlZoom || 0;
+    }
+
+    map.setView(centreLatLng, zoom);
+});
