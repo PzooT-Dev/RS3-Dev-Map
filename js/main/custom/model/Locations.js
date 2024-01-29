@@ -1,6 +1,6 @@
 'use strict';
 
-import {Position} from './custom/model/Position.js';
+import {Position} from './Position.js';
 
 class Locations {
 
