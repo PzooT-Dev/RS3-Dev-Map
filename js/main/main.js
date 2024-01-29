@@ -129,8 +129,6 @@ $(document).ready(function () {
     }
 
     if (urlCentreX && urlCentreY && urlCentreZ) {
-        const x = Number(urlCentreX) > Region.MAX_X ? Region.MAX_X : Number(urlCentreX) < Region.MIN_X ? Region.MIN_X : Number(urlCentreX);
-        const y = Number(urlCentreY) > Region.MAX_Y ? Region.MAX_Y : Number(urlCentreY) < Region.MIN_Y ? Region.MIN_Y : Number(urlCentreY);
         const centrePos = new Position(Number(3200), Number(3200), Number(urlCentreZ));
         centreLatLng = centrePos.toLatLng(map);
     } else if (urlRegionID) {
